@@ -1,6 +1,7 @@
 package foodcards.adapter.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import foodcards.adapter.builder.EntityBuilder;
 import foodcards.adapter.builder.KafkaBuilder;
 import foodcards.adapter.dto.KafkaSendDTO;
 import foodcards.adapter.mapper.AppAdapterIoMsgsMapper;
@@ -29,7 +30,7 @@ public class AdapterSenderService {
     private final AppAdapterIoMsgsMapper ioMsgsMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final KafkaBuilder kafkaBuilder;
-
+    private final EntityBuilder entityBuilder;
     private final ObjectMapper objectMapper;
 
 
@@ -72,18 +73,10 @@ public class AdapterSenderService {
             throw new RuntimeException("Ошибка сериализации", e);
         }
 
-        AppAdapterTrans trans = new AppAdapterTrans();
-        trans.setSystemId("GRU");
-        trans.setRequestId(requestId);
-        trans.setEventType("BALANCE");
-        trans.setData(jsonMessage);
-        trans.setStatus("WAIT");
+        AppAdapterTrans trans = entityBuilder.buildTrans(requestId, jsonMessage);
+        transMapper.insert(trans);
 
-        AppAdapterIoMsgs ioMsg = new AppAdapterIoMsgs();
-        ioMsg.setTransId(trans.getId());
-        ioMsg.setMsgType("BALANCE");
-        ioMsg.setDir("OUT");
-        ioMsg.setMsg(jsonMessage);
+        AppAdapterIoMsgs ioMsg = entityBuilder.buildIoMsg(trans.getId(), jsonMessage);
         ioMsgsMapper.insert(ioMsg);
 
         log.info("Отправка в Kafka: topic={}, requestId={}", topicOutBalance, requestId);
