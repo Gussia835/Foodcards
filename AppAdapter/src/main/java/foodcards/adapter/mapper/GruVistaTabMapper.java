@@ -1,4 +1,4 @@
-package foodcards.adapter;
+package foodcards.adapter.mapper;
 
 import foodcards.adapter.models.GruVistaTab;
 import org.apache.ibatis.annotations.Mapper;
@@ -20,14 +20,14 @@ public interface GruVistaTabMapper {
     void updateStatusToProgress(@Param("ids") List<Long> ids);
 
     /*
-     * Меняем статус на success
-     */
-    void updateStatusToSuccess(@Param("id") Long id,
-                               @Param("newTbal") BigDecimal newTbal,
-                                @Param("oldTbal") BigDecimal oldTbal);
-
-    /*
      * Меняем статус на error
      */
     void updateStatusToError(@Param("ids") List<Long> ids);
+
+    /*
+     * Меняем данные success
+     */
+    void updateDataSuccess(@Param("id") Long id,
+                       @Param("newTbal") BigDecimal newTbal,
+                       @Param("oldTbal") BigDecimal oldTbal);
 }

@@ -35,9 +35,7 @@ public class SendHandler extends Base implements HttpHandler {
             responseService.sendError(exchange, HttpURLConnection.HTTP_BAD_METHOD, "Mthod should be POST");
             return;
         }
-
         executorService.submit(() -> process(exchange));
-
     }
 
     private void process(HttpExchange exchange) {
@@ -50,7 +48,7 @@ public class SendHandler extends Base implements HttpHandler {
         } catch (FileGenerationException e) {
             error("File generation failed: {}", e.getMessage(), e);
             responseService.sendError(exchange, HttpURLConnection.HTTP_INTERNAL_ERROR, "Generation failed");
-        }catch (SendException e) {
+        } catch (SendException e) {
             error("Send failed: {}", e.getMessage(), e);
             responseService.sendError(exchange, HttpURLConnection.HTTP_INTERNAL_ERROR, "Send fail because file invalid" + e.getMessage());
         } catch (Exception e) {

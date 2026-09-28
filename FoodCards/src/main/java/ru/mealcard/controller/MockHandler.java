@@ -22,7 +22,6 @@ public class MockHandler extends Base implements HttpHandler {
     private final ExecutorService executorService;
 
     public MockHandler(ExecutorService executorService) {
-
         this.executorService = executorService;
     }
 
