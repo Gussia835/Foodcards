@@ -31,7 +31,7 @@ mybatis:
 app:
   kafka:
     batch-size: 100
-    sleep-time-ms: 5000
+    sleep-time-ms: "5 sec"
     topic-out-balance: gru.balance.out
     topic-in-balance: gru.balance.in
     topic-out-food: gru.food.out

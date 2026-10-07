@@ -13,7 +13,6 @@ public class Constants {
     public static final String DEFAULT_SLEEP_TIME = "5 sec";
 
     // Статусы бизнес-логики
-    public static final String STATUS_WAIT = "WAIT";
     public static final String STATUS_PROGRESS = "PROGRESS";
     public static final String STATUS_SUCCESS = "SUCCESS";
     public static final String STATUS_ERROR = "ERROR";
@@ -25,6 +24,5 @@ public class Constants {
 
     // Системные константы
     public static final String SYSTEM_ID = "GRU";
-    public static final String EVENT_TYPE_BALANCE = "BALANCE";
     public static final String BATCH_ERROR = "Batch Error";
 }

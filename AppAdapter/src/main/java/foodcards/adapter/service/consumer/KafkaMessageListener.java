@@ -14,8 +14,8 @@ public class KafkaMessageListener {
 
     @KafkaListener(
             topics = "#{@kafkaTopicProvider.getInboundTopics()}",
-            groupId = "app-adapter-group",
-            containerFactory = "kafkaListenerContainerFactory"
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "kafkaListener"
     )
     public void onMessage(String jsonMessage, Acknowledgment ack) {
         log.info("Получено сообщение из Kafka");

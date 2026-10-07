@@ -22,21 +22,22 @@ import java.util.Objects;
 public class KafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, KafkaSendDTO> producerFactory(KafkaProperties kafkaProperties,
-                                                                 ObjectMapper objectMapper) {
+    public ProducerFactory<String, String> producerFactory(KafkaProperties kafkaProperties) {
 
         Map<String, Object> configs = kafkaProperties.buildProducerProperties(null);
-        DefaultKafkaProducerFactory<String, KafkaSendDTO> factory = new DefaultKafkaProducerFactory<>(configs);
 
-        factory.setValueSerializerSupplier(() -> new JsonSerializer<>(objectMapper));
-        factory.setKeySerializerSupplier(StringSerializer::new);
+        //factory.setValueSerializerSupplier(() -> new JsonSerializer<>(objectMapper));
+        //factory.setKeySerializerSupplier(StringSerializer::new);
 
-        return factory;
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(configs);
 
     }
 
     @Bean
-    public KafkaTemplate<String, KafkaSendDTO> kafkaTemplate(ProducerFactory<String, KafkaSendDTO> factory) {
-        return new KafkaTemplate<String, KafkaSendDTO>(factory);
+    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> factory) {
+        return new KafkaTemplate<>(factory);
     }
 }

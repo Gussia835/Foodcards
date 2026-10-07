@@ -30,8 +30,8 @@ public class AppAdapterDAO {
     public int BATCH_SIZE;
 
     @Transactional
-    public List<GruVistaTabEntity> getWaiting(int batchSize, String entityType) {
-        List<GruVistaTabEntity> records = gruVistaTabMapper.selectWaitingRecords(BATCH_SIZE, entityType);
+    public List<GruVistaTabEntity> getWaiting(int batchSize) {
+        List<GruVistaTabEntity> records = gruVistaTabMapper.selectWaitingRecords(BATCH_SIZE);
 
         if (records != null && !records.isEmpty()) {
             List<Long> ids = records.stream().map(GruVistaTabEntity::getId).toList();

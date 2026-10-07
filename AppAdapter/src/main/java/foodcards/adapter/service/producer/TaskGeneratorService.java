@@ -7,10 +7,12 @@ import foodcards.adapter.models.GruVistaTabEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class TaskGeneratorService {
@@ -21,7 +23,7 @@ public class TaskGeneratorService {
     private int BATCH_SIZE;
 
     public KafkaSendDTO generateDTO(String entityType, String eventType) {
-        List<GruVistaTabEntity> batch = adapterDAO.getWaiting(BATCH_SIZE, entityType);
+        List<GruVistaTabEntity> batch = adapterDAO.getWaiting(BATCH_SIZE);
 
         if (batch != null && !batch.isEmpty()) {
             log.info("Сгенерирован батч. Записей: {}", batch.size());

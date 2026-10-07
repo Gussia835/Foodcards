@@ -12,7 +12,7 @@ public interface GruVistaTabMapper {
     /*
      Выбираем n записей со статусом WAIT
      */
-    List<GruVistaTabEntity> selectWaitingRecords(@Param("n") int n, @Param("entityType") String entityType);
+    List<GruVistaTabEntity> selectWaitingRecords(@Param("n") int n);
 
     /*
     * Меняем статус на progress

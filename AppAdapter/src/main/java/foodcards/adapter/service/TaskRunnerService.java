@@ -24,8 +24,8 @@ public class TaskRunnerService implements CommandLineRunner {
 
         for (AppAdapterConfigEntity config : configs) {
             if (config.getStatusOut() != null && config.getStatusOut() > 0) {
-                WorkerTask task = workerProvider.getObject(config);
-                task.start();
+                WorkerTask task = workerProvider.getObject();
+                task.start(config);
             }
         }
     }

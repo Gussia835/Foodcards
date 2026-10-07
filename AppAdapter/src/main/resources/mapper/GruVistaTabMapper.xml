@@ -27,7 +27,6 @@
         SELECT *
         FROM GRU.GRU_VISTA_TAB
         WHERE FOC_STATUS = 'WAIT'
-        AND ENTITY_TYPE = #{entityType}
         AND ROWNUM &lt;= #{n}
         FOR UPDATE SKIP LOCKED
     </select>
