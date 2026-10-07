@@ -1,6 +1,6 @@
 package foodcards.adapter.mapper;
 
-import foodcards.adapter.models.GruVistaTab;
+import foodcards.adapter.models.GruVistaTabEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,7 +12,7 @@ public interface GruVistaTabMapper {
     /*
      Выбираем n записей со статусом WAIT
      */
-    List<GruVistaTab> selectWaitingRecords(@Param("n") int n);
+    List<GruVistaTabEntity> selectWaitingRecords(@Param("n") int n, @Param("entityType") String entityType);
 
     /*
     * Меняем статус на progress

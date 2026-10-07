@@ -16,5 +16,3 @@ COPY --from=builder /app/build/libs/Receiver-1.0-SNAPSHOT.jar app.jar
 EXPOSE 666 6666
 
 CMD ["java", "-jar", "app.jar"]
-
-

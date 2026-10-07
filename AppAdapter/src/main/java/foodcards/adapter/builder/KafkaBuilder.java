@@ -2,7 +2,7 @@ package foodcards.adapter.builder;
 
 import foodcards.adapter.dto.EventSendDTO;
 import foodcards.adapter.dto.KafkaSendDTO;
-import foodcards.adapter.models.GruVistaTab;
+import foodcards.adapter.models.GruVistaTabEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class KafkaBuilder {
-    public KafkaSendDTO buildKafkaSend(List<GruVistaTab> entityList, String eventType, String entityType) {
+
+    public KafkaSendDTO buildKafkaSend(List<GruVistaTabEntity> entityList, String eventType, String entityType) {
         String requestId = "req-" + UUID.randomUUID().toString();
 
         return KafkaSendDTO.builder()
@@ -25,7 +26,7 @@ public class KafkaBuilder {
                 .build();
     }
 
-    private List<EventSendDTO> buildEventsList(List<GruVistaTab> records) {
+    private List<EventSendDTO> buildEventsList(List<GruVistaTabEntity> records) {
         return records.stream()
                 .map(record -> EventSendDTO.builder()
                         .id(record.getId().toString())

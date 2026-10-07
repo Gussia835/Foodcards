@@ -12,12 +12,12 @@ grpc:
 receiver:
   datasource:
     pom:
-      url: jdbc:postgresql://postgres:5432/pom_db
+      url: jdbc:postgresql://pom_db:5432/pom_db
       username: pom
       password: ${POSTGRES_PASSWORD}
       driver-class-name: org.postgresql.Driver
     gru:
-      url: jdbc:oracle:thin:@//oracle:1521/XEPDB1
+      url: jdbc:oracle:thin:@gru_db:1521/XEPDB1
       username: GRU
       password: ${GRU_APP_PASSWORD}
       driver-class-name: oracle.jdbc.OracleDriver

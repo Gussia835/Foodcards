@@ -4,7 +4,7 @@
 
 <mapper namespace="foodcards.adapter.mapper.AppAdapterTransMapper">
 
-    <resultMap id="AppAdapterTransResult" type="foodcards.adapter.models.AppAdapterTrans">
+    <resultMap id="AppAdapterTransResult" type="foodcards.adapter.models.AppAdapterTransEntity">
         <id property="id" column="ID"/>
         <result property="systemId" column="SYSTEM_ID"/>
         <result property="requestId" column="REQUEST_ID"/>
@@ -17,9 +17,9 @@
         <result property="updTs" column="UPD_TS"/>
     </resultMap>
 
-    <insert id="insert" parameterType="foodcards.adapter.models.AppAdapterTrans">
+    <insert id="insert" parameterType="foodcards.adapter.models.AppAdapterTransEntity">
         <selectKey keyProperty="id" resultType="java.lang.Long" order="BEFORE">
-        SELECT APP_ADAPTER_TRANS_SEQ.NEXTVAL FROM DUAL
+        SELECT ACC_APP_ADAPTER.APP_ADAPTER_TRANS_SEQ.NEXTVAL FROM DUAL
     </selectKey>
         INSERT INTO ACC_APP_ADAPTER.APP_ADAPTER_TRANS (
                     ID, SYSTEM_ID, REQUEST_ID, EVENT_TYPE, DATA, STATUS, INS_TS, UPD_TS )

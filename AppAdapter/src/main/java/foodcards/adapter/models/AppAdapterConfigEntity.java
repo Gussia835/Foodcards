@@ -1,10 +1,17 @@
 package foodcards.adapter.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
-public class AppAdapterConfig {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AppAdapterConfigEntity {
     private Long id;
     private String systemId;
     private String eventType;

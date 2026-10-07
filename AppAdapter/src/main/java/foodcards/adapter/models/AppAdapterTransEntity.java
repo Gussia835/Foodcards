@@ -11,12 +11,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppAdapterIoMsgs {
+public class AppAdapterTransEntity {
     private Long id;
-    private Long transId;
-    private String msgType;
-    private String dir;
-    private String msg;
+    private String systemId;
+    private String requestId;
+    private String eventType;
+    private String data;
+    private String status;
+    private String respCode;
+    private String respDesc;
     private LocalDateTime insTs;
-    private String nodeId;
+    private LocalDateTime updTs;
 }

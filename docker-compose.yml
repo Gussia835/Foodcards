@@ -10,14 +10,9 @@ services:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-postgres:/docker-entrypoint-initdb.d
     networks:
       - foodcards-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -U pom -d pom_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
   oracle:
     image: gvenzl/oracle-xe:21-slim
@@ -32,12 +27,13 @@ services:
       - foodcards-network
     volumes:
       - oracle_data:/opt/oracle/oradata
+      - ./init-oracle:/container-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "ls /opt/oracle/oradata/XE"]
+      test: [ "CMD-SHELL", "echo 'exit' | sqlplus -L sys/${ORACLE_SYS_PASSWORD}@//localhost:1521/XE as sysdba | grep -q 'Connected to:'" ]
       interval: 15s
       timeout: 10s
-      retries: 10
-      start_period: 300s
+      retries: 30
+      start_period: 40s
 
   receiver:
     build: ./Receiver
@@ -47,20 +43,18 @@ services:
       - "6666:6666"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - RECEIVER_DATASOURCE_POM_URL=jdbc:postgresql://postgres:5432/pom_db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - GRU_APP_PASSWORD=${GRU_APP_PASSWORD}
+      - RECEIVER_DATASOURCE_POM_URL=jdbc:postgresql://pom_db:5432/pom_db
       - RECEIVER_DATASOURCE_POM_USERNAME=pom
-      - RECEIVER_DATASOURCE_POM_PASSWORD=${POSTGRES_PASSWORD}
-      - RECEIVER_DATASOURCE_GRU_URL=jdbc:oracle:thin:@oracle:1521/XEPDB1
+      - RECEIVER_DATASOURCE_GRU_URL=jdbc:oracle:thin:@gru_db:1521/XEPDB1
       - RECEIVER_DATASOURCE_GRU_USERNAME=GRU
-      - RECEIVER_DATASOURCE_GRU_PASSWORD=${GRU_APP_PASSWORD}
       - APP_FILESPATHS_PROCESS-DIR=/app/incoming
       - APP_FILESPATHS_TARGET-DIR=/app/target
     volumes:
       - ./incoming:/app/incoming
       - ./target:/app/target
     depends_on:
-      postgres:
-        condition: service_healthy
       oracle:
         condition: service_healthy
     networks:
@@ -72,16 +66,15 @@ services:
     ports:
       - "90:90"
     environment:
-      - SEND_URL=${SEND_URL}
-      - GRPC_HOST=${GRPC_HOST}
-      - GRPC_PORT=${GRPC_PORT}
+      - SEND_URL=http://receiver:666/files
+      - GRPC_HOST=receiver
+      - GRPC_PORT=6666
     volumes:
       - generator_output:/app/out/cards
     depends_on:
       - receiver
     networks:
       - foodcards-network
-
 
   kafka:
     image: apache/kafka:3.7.0
@@ -92,7 +85,9 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092
+
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -100,13 +95,32 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    networks:
-      - foodcards-network
+
     healthcheck:
-      test: [ "CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list" ]
+      test: [ "CMD-SHELL", "nc -z localhost 9092" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+    networks:
+      - foodcards-network
+
+  app-adapter:
+    build: ./AppAdapter
+    container_name: app_adapter
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - GRU_APP_PASSWORD=${GRU_APP_PASSWORD}
+
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - foodcards-network
+
 
 volumes:
   postgres_data:
