@@ -1,0 +1,9 @@
+rootProject.name = 'FoodCards'
+
+include 'app-adapter'
+include 'publisher'
+include 'generator'
+
+project(':app-adapter').projectDir = file('App-adapter')
+project(':publisher').projectDir = file('FoodCards-Publisher-System')
+project(':generator').projectDir = file('Mealcard-File-Generator')
