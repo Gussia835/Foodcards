@@ -1,0 +1,92 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'application'
+    id 'jacoco'
+    id 'idea'
+    id 'com.github.johnrengelman.shadow'
+    id 'com.google.protobuf'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+
+    testImplementation 'io.rest-assured:rest-assured:5.4.0'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testImplementation 'org.awaitility:awaitility:4.2.1'
+    testImplementation 'org.apiguardian:apiguardian-api:1.1.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'net.datafaker:datafaker:2.7.0'
+    implementation 'org.apache.tika:tika-core:2.9.2'
+    implementation 'org.apache.tika:tika-parser-text-module:2.9.2'
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
+    implementation 'com.google.protobuf:protobuf-java:3.25.3'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    implementation "com.oracle.database.jdbc:ojdbc11:21.9.0.0"
+    implementation "org.postgresql:postgresql:42.7.2"
+
+    implementation 'io.grpc:grpc-netty-shaded:1.64.0'
+    implementation 'io.grpc:grpc-protobuf:1.64.0'
+    implementation 'io.grpc:grpc-stub:1.64.0'
+    implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
+
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+    implementation 'ch.qos.logback:logback-classic:1.5.12'
+    implementation 'ch.qos.logback:logback-core:1.5.12'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
+}
+
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
+shadowJar {
+    archiveFileName.set('mealcard-publisher.jar')
+
+
+    mergeServiceFiles()
+
+    transform(AppendingTransformer) {
+        resource = 'META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports'
+    }
+
+    transform(AppendingTransformer) {
+        resource = 'META-INF/spring.factories'
+    }
+
+    manifest {
+        attributes 'Main-Class': 'ru.mealcard.PublisherCards'
+    }
+}
+
+application {
+    mainClass = 'ru.mealcard.PublisherCards'
+    applicationDefaultJvmArgs = ["-Dfile.encoding=UTF-8"]
+}
+
+sourceSets {
+    test {
+        java { srcDir 'src/test/java' }
+        resources { srcDir 'src/test/resources' }
+    }
+    integrationTest {
+        java {
+            srcDir 'src/integrationTest/java'
+            compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+            runtimeClasspath += output + compileClasspath
+        }
+        resources { srcDir 'src/integrationTest/resources' }
+    }
+}
+
+protobuf {
+    protoc { artifact = 'com.google.protobuf:protoc:3.25.3' }
+    plugins { grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.64.0' } }
+    generateProtoTasks { all()*.plugins { grpc {} } }
+}
