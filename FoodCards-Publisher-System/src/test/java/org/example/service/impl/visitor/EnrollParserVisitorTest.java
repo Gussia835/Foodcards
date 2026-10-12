@@ -1,11 +1,12 @@
 package org.example.service.impl.visitor;
 
-import org.example.builders.EnrollBuilder;
-import org.example.models.gru.GruVistaTab;
-import org.example.models.pom.PomUnit;
-import org.example.models.pom.PomUnitError;
-import org.example.service.dao.SaverDAO;
-import org.example.service.impl.visitor.validator.EnrollValidator;
+import ru.mealcard.builders.EnrollBuilder;
+import ru.mealcard.models.gru.GruVistaTab;
+import ru.mealcard.models.pom.PomUnit;
+import ru.mealcard.models.pom.PomUnitError;
+import ru.mealcard.service.dao.SaverDAO;
+import ru.mealcard.service.impl.visitor.EnrollParserVisitor;
+import ru.mealcard.service.impl.visitor.validator.EnrollValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

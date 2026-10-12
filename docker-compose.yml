@@ -110,7 +110,7 @@ services:
   app-adapter:
     build:
       context: .
-      dockerfile: app-adapter/Dockerfile
+      dockerfile: App-adapter/Dockerfile
     container_name: app_adapter
     ports:
       - "8083:8083"

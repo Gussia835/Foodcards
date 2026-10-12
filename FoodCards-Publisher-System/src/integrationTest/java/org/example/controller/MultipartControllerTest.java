@@ -1,8 +1,9 @@
 package org.example.controller;
 
-import org.example.service.FileReceiverService;
-import org.example.service.impl.visitor.validator.EnrollValidator;
-import org.example.utils.filename.FileManager;
+import ru.mealcard.controller.MultipartController;
+import ru.mealcard.service.FileReceiverService;
+import ru.mealcard.service.impl.visitor.validator.EnrollValidator;
+import ru.mealcard.utils.filename.FileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

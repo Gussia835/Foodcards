@@ -1,7 +1,8 @@
 package org.example.controller;
 
-import org.example.service.FileReceiverService;
-import org.example.utils.filename.FileManager;
+import ru.mealcard.controller.ScanController;
+import ru.mealcard.service.FileReceiverService;
+import ru.mealcard.utils.filename.FileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,11 +1,10 @@
 package org.example.service.impl.visitor.validatator;
 
-import org.example.service.impl.visitor.validator.EnrollValidator;
+import ru.mealcard.service.impl.visitor.validator.EnrollValidator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
