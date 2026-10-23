@@ -22,13 +22,13 @@ import static foodcards.adapter.utils.Constants.*;
 @Component
 @Scope("prototype")
 @RequiredArgsConstructor
-public class WorkerTask {
+public class GruKafkaProducer {
     private final TaskGeneratorService taskGeneratorService;
     private final KafkaProducerService producerService;
     private final AppAdapterDAO dao;
     private final TimeParserUtil timeParser;
     private final EntityBuilder entityBuilder;
-    private final WorkerManagerService workerManager;
+    private final AdapterManagerService workerManager;
 
     private String currentEntityType;
 
@@ -40,7 +40,6 @@ public class WorkerTask {
     @Async("workerTaskExecutor")
     public void start(AppAdapterConfigEntity config) {
         this.currentEntityType = config.getEntityType();
-        workerManager.registerWorker(this.currentEntityType, this);
 
         long sleepTime = timeParser.parseToMillis(sleepTimeConfig);
 
@@ -72,6 +71,7 @@ public class WorkerTask {
                     Thread.sleep(timeParser.parseToMillis(DEFAULT_SLEEP_TIME));
 
                 } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
                    break;
                 }
             }
@@ -82,9 +82,5 @@ public class WorkerTask {
     public void shutDown() {
         log.info("Завершаем поток");
         this.isRunning.set(false);
-
-        if (this.currentEntityType != null) {
-            workerManager.unregisterWorker(this.currentEntityType);
-        }
     }
 }

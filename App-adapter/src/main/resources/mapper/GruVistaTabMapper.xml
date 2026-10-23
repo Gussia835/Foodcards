@@ -26,7 +26,7 @@
     <select id="selectWaitingRecords" resultMap="GruVistaTabResult">
         SELECT *
         FROM GRU.GRU_VISTA_TAB
-        WHERE FOC_STATUS = 'WAIT'
+        WHERE FOC_STATUS IN ('WAIT', 'PROGRESS')
         AND ROWNUM &lt;= #{n}
         FOR UPDATE SKIP LOCKED
     </select>
@@ -41,14 +41,15 @@
         </foreach>
     </update>
 
-    <update id="updateStatusToError">
+    <update id="batchUpdateToError">
         UPDATE GRU.GRU_VISTA_TAB
         SET foc_status = 'ERROR',
             foc_ts = SYSDATE
         WHERE id IN
-        <foreach item="id" collection="ids" open="(" close=")" separator=",">
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
             #{id}
         </foreach>
+        AND foc_status = 'PROGRESS'
     </update>
 
     <update id="updateDataSuccess">
@@ -59,4 +60,30 @@
             FOC_TS = SYSDATE
         WHERE ID = #{id}
     </update>
+
+    <update id="batchUpdateSuccess">
+        UPDATE GRU.GRU_VISTA_TAB
+        SET
+            NEWTBAL = CASE ID
+            <foreach collection="list" item="item">
+                WHEN #{item.id} THEN #{item.newTbal}
+            </foreach>
+            END,
+            OLDTBAL = CASE ID
+            <foreach collection="list" item="item">
+                WHEN #{item.id} THEN #{item.oldTbal}
+            </foreach>
+            END,
+            foc_status = 'SUCCESS',
+            FOC_TS = SYSDATE
+        WHERE ID IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+        AND foc_status = 'PROGRESS'
+    </update>
+
+
+
+
 </mapper>

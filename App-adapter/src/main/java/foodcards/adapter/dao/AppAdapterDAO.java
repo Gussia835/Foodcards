@@ -1,19 +1,13 @@
 package foodcards.adapter.dao;
 
-import foodcards.adapter.mapper.AppAdapterIoMsgsMapper;
-import foodcards.adapter.mapper.AppAdapterTransMapper;
-import foodcards.adapter.mapper.GruRejectTabMapper;
-import foodcards.adapter.mapper.GruVistaTabMapper;
-import foodcards.adapter.models.AppAdapterIoMsgsEntity;
-import foodcards.adapter.models.AppAdapterTransEntity;
-import foodcards.adapter.models.GruRejectTabEntity;
-import foodcards.adapter.models.GruVistaTabEntity;
-import foodcards.adapter.utils.Constants;
+import foodcards.adapter.mapper.*;
+import foodcards.adapter.mapper.dto.VistaUpdateDTO;
+import foodcards.adapter.models.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +21,14 @@ public class AppAdapterDAO {
     private final AppAdapterTransMapper transMapper;
     private final AppAdapterIoMsgsMapper ioMsgsMapper;
     private final GruRejectTabMapper rejectTabMapper;
+    private final AppAdapterConfigMapper configMapper;
 
     @Value("${app.kafka.batch-size:100}")
     public int BATCH_SIZE;
 
+    /*
+    gruVistaTab: Получение ожидающих обработки из GruVistaTab
+    */
     @Transactional
     public List<GruVistaTabEntity> getWaiting(int batchSize) {
         List<GruVistaTabEntity> records = gruVistaTabMapper.selectWaitingRecords(BATCH_SIZE);
@@ -42,6 +40,9 @@ public class AppAdapterDAO {
         return records;
     }
 
+    /*
+    trans и IO: сохранение в таблицу trans и IOMsgs
+    */
     @Transactional
     public void saveOutboundAudit(AppAdapterTransEntity trans, AppAdapterIoMsgsEntity ioMsg) {
         transMapper.insert(trans);
@@ -49,6 +50,9 @@ public class AppAdapterDAO {
         ioMsgsMapper.insert(ioMsg);
     }
 
+    /*
+    trans: изменение статуса на SEND_TO_KAFKA
+    */
     @Transactional
     public void markTransactionAsSentToKafka(String requestId) {
         AppAdapterTransEntity trans = transMapper.findByRequestId(requestId);
@@ -57,6 +61,9 @@ public class AppAdapterDAO {
         }
     }
 
+    /*
+    trans: изменение статуса на PROCESSED
+    */
     @Transactional
     public void markTransactionAsProcessed(String requestId) {
         AppAdapterTransEntity trans = transMapper.findByRequestId(requestId);
@@ -65,29 +72,24 @@ public class AppAdapterDAO {
         }
     }
 
+    /*
+    IoMsgs: запись в таблицу Io лога
+    */
     @Transactional
     public void saveInboundAudit(AppAdapterIoMsgsEntity ioMsg) {
         ioMsgsMapper.insert(ioMsg);
     }
 
-    public void updateVistaTabSuccess(Long id, BigDecimal newTbal, BigDecimal oldTbal) {
-        gruVistaTabMapper.updateDataSuccess(id, newTbal, oldTbal);
-    }
-
-    public void updateVistaTabToError(List<Long> ids) {
-        if (ids != null && !ids.isEmpty()) {
-            gruVistaTabMapper.updateStatusToError(ids);
-        }
-    }
-
-    public void saveReject(GruRejectTabEntity reject) {
-        rejectTabMapper.insert(reject);
-    }
-
+    /*
+    trans: запись по id
+    */
     public AppAdapterTransEntity findTransByRequestId(String requestId) {
         return transMapper.findByRequestId(requestId);
     }
 
+    /*
+    trans: получение ифнормации о записях
+    */
     public Map<String, Integer> getTransactionStats() {
         Map<String, Integer> stats = new HashMap<>();
         stats.put("WAIT", transMapper.countByStatus(STATUS_WAIT));
@@ -97,4 +99,51 @@ public class AppAdapterDAO {
         stats.put("ERROR", transMapper.countByStatus(STATUS_ERROR));
         return stats;
     }
+
+    /*
+     Config: Поиск конфигурации
+     */
+    public AppAdapterConfigEntity findConfigById(Long id) {
+        return configMapper.findById(id);
+    }
+
+    /*
+    Config: добавление кофнигурации
+    */
+    @Transactional
+    public void addConfig(AppAdapterConfigEntity config) {
+        configMapper.insert(config);
+    }
+
+    /*
+    GruVistaTab: обнволение статуса на success
+    */
+    @Transactional()
+    public void updateVistaTabSuccess(List<VistaUpdateDTO> updates) {
+        if (updates != null && !updates.isEmpty()) {
+            gruVistaTabMapper.batchUpdateSuccess(updates);
+        }
+    }
+
+    /*
+    GruVistaTab: обнволение статуса на error
+    */
+    @Transactional
+    public void updateVistaTabToError(List<Long> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            gruVistaTabMapper.batchUpdateToError(ids);
+        }
+    }
+
+    /*
+    reject: Добавление записи в таблицу ошибок
+    */
+    @Transactional
+    public void saveRejects(List<GruRejectTabEntity> rejects) {
+        if (rejects != null && !rejects.isEmpty()) {
+            rejectTabMapper.batchInsert(rejects);
+        }
+    }
+
+
 }

@@ -19,4 +19,27 @@
 
 
     </insert>
+
+    <insert id="batchInsert">
+        INSERT ALL
+        <foreach collection="list" item="item">
+            INTO GRU.GRU_REJECT_TAB (
+            ID, SYSTEMACCOUNT, VISTA_TAB_ID, UTERRARIO, OLDTBAL, NEWTBAL,
+            FRONT_TIMESTAMP, FRONT_STATUS, REJECT_DESC, CHECK_STATUS, CHECK_TIMESTAMP
+            ) VALUES (
+            GRU_REJECT_TAB_SEQ.NEXTVAL,
+            #{item.systemAccount},
+            #{item.vistaTabId},
+            #{item.uterrario},
+            #{item.oldTbal},
+            #{item.newTbal},
+            SYSDATE,
+            #{item.frontStatus},
+            #{item.rejectDesc},
+            #{item.checkStatus},
+            SYSDATE
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
 </mapper>

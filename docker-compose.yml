@@ -118,6 +118,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - GRU_APP_PASSWORD=${GRU_APP_PASSWORD}
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_CONCURRENCY=5
     depends_on:
       oracle:
         condition: service_healthy

@@ -19,4 +19,17 @@
         FROM ACC_APP_ADAPTER.APP_ADAPTER_CONFIG
         WHERE STATUS_IN = 1 OR STATUS_OUT = 1
     </select>
+
+    <select id="findById" resultMap="ConfigResult">
+        SELECT *
+        FROM ACC_APP_ADAPTER.APP_ADAPTER_CONFIG
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="foodcards.adapter.models.AppAdapterConfigEntity">
+        INSERT INTO ACC_APP_ADAPTER.APP_ADAPTER_CONFIG
+        (SYSTEMID, EVENT_TYPE, ENTITY_TYPE, TOPIC_IN, STATUS_IN, TOPIC_OUT, STATUS_OUT)
+        VALUES
+        (#{systemId}, #{eventType}, #{entityType}, #{topicIn}, #{statusIn}, #{topicOut}, #{statusOut})
+    </insert>
 </mapper>

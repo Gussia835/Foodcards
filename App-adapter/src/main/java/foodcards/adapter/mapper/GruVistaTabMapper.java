@@ -1,5 +1,6 @@
 package foodcards.adapter.mapper;
 
+import foodcards.adapter.mapper.dto.VistaUpdateDTO;
 import foodcards.adapter.models.GruVistaTabEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -22,12 +23,13 @@ public interface GruVistaTabMapper {
     /*
      * Меняем статус на error
      */
-    void updateStatusToError(@Param("ids") List<Long> ids);
+    void batchUpdateToError(@Param("ids") List<Long> ids);
 
     /*
      * Меняем данные success
      */
-    void updateDataSuccess(@Param("id") Long id,
-                       @Param("newTbal") BigDecimal newTbal,
-                       @Param("oldTbal") BigDecimal oldTbal);
+    void batchUpdateSuccess(@Param("list") List<VistaUpdateDTO> list);
+
+
+
 }

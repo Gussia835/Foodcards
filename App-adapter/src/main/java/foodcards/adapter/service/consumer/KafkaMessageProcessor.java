@@ -9,13 +9,11 @@ import foodcards.adapter.models.AppAdapterTransEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import static foodcards.adapter.utils.Constants.DIR_IN;
 import static foodcards.adapter.utils.Constants.STATUS_ERROR;
-import static foodcards.adapter.utils.Constants.STATUS_SUCCESS;
 
 @Slf4j
 @Service
@@ -24,9 +22,16 @@ public class KafkaMessageProcessor {
     private final ObjectMapper objectMapper;
     private final AppAdapterDAO dao;
     private final EntityBuilder entityBuilder;
+    private final UpdateStatusService updateService;
 
-    @Transactional
-    public void process(String jsonMessage) throws IOException {
+    public void processMessages(List<String> jsonMessages) throws IOException {
+        for (String jsonMessage : jsonMessages) {
+            process(jsonMessage);
+        }
+    }
+
+    private void process(String jsonMessage) throws IOException {
+
         KafkaReceiveDTO receiveDTO = objectMapper.readValue(jsonMessage, KafkaReceiveDTO.class);
         String requestId = receiveDTO.getRequestId();
 
@@ -40,37 +45,12 @@ public class KafkaMessageProcessor {
         dao.saveInboundAudit(ioMsg);
 
         if (STATUS_ERROR.equals(receiveDTO.getStatus()) || receiveDTO.getEvents() == null) {
-            handleBatchError(receiveDTO);
+            updateService.processErrorEvents(receiveDTO.getEvents());
         } else {
-            handleBatchSuccess(receiveDTO);
+            updateService.processSuccessEvents(receiveDTO.getEvents());
         }
 
         dao.markTransactionAsProcessed(requestId);
-        log.info("Статус транзакции обновлен на SUCCESS. requestId: {}", requestId);
-    }
-
-    private void handleBatchSuccess(KafkaReceiveDTO dto) {
-        for (var event : dto.getEvents()) {
-            if (STATUS_SUCCESS.equals(event.getStatus()) && event.getData() != null) {
-                dao.updateVistaTabSuccess(
-                        Long.parseLong(event.getEntityId()),
-                        new BigDecimal(event.getData().getNewTbal()),
-                        new BigDecimal(event.getData().getOldTbal())
-                );
-            } else if (STATUS_ERROR.equals(event.getStatus())) {
-                dao.updateVistaTabToError(List.of(Long.parseLong(event.getEntityId())));
-                dao.saveReject(entityBuilder.buildRejectTab(event.getEntityId(), event.getEntityValue(), event.getError()));
-            }
-        }
-    }
-
-    private void handleBatchError(KafkaReceiveDTO dto) {
-        if (dto.getEvents() != null) {
-            List<Long> errorIds = dto.getEvents().stream().map(e -> Long.parseLong(e.getEntityId())).toList();
-            dao.updateVistaTabToError(errorIds);
-            for (var event : dto.getEvents()) {
-                dao.saveReject(entityBuilder.buildRejectTab(event.getEntityId(), event.getEntityValue(), event.getError()));
-            }
-        }
+        log.info("Статус транзакции обновлен на PROCESSED. requestId: {}", requestId);
     }
 }

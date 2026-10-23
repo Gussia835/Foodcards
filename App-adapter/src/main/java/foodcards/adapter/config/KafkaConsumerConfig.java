@@ -10,6 +10,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
 import java.util.Map;
 
@@ -17,29 +18,25 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, KafkaReceiveDTO> consumerFactory(KafkaProperties kafkaProperties,
-                                                                    ObjectMapper objectMapper) {
+    public ConsumerFactory<String, String> consumerFactory(KafkaProperties kafkaProperties) {
 
         Map<String, Object> configs = kafkaProperties.buildConsumerProperties(null);
-        DefaultKafkaConsumerFactory<String, KafkaReceiveDTO> factory = new DefaultKafkaConsumerFactory<>(configs);
+        DefaultKafkaConsumerFactory<String, String> factory = new DefaultKafkaConsumerFactory<>(configs);
 
-        factory.setValueDeserializerSupplier(() -> {
-            JsonDeserializer<KafkaReceiveDTO> deserializer = new JsonDeserializer<>(KafkaReceiveDTO.class, objectMapper);
-            deserializer.addTrustedPackages("foodcards.adapter.dto");
-            return deserializer;
-        });
+        factory.setValueDeserializerSupplier(StringDeserializer::new);
         factory.setKeyDeserializerSupplier(StringDeserializer::new);
 
         return factory;
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, KafkaReceiveDTO> kafkaListener(ConsumerFactory<String, KafkaReceiveDTO> consumerFactory) {
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListener(ConsumerFactory<String, String> consumerFactory) {
 
-        ConcurrentKafkaListenerContainerFactory<String, KafkaReceiveDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
 
-        factory.getContainerProperties().setAckMode(org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL);
+        factory.setBatchListener(true);
+        factory.getContainerProperties().setAckMode(AckMode.MANUAL);
         return factory;
     }
 
