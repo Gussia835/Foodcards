@@ -16,7 +16,7 @@ import static foodcards.adapter.utils.Constants.*;
 
 @Repository
 @RequiredArgsConstructor
-public class AppAdapterDAO {
+public class AdapterDao {
     private final GruVistaTabMapper gruVistaTabMapper;
     private final AppAdapterTransMapper transMapper;
     private final AppAdapterIoMsgsMapper ioMsgsMapper;
@@ -30,7 +30,7 @@ public class AppAdapterDAO {
     gruVistaTab: Получение ожидающих обработки из GruVistaTab
     */
     @Transactional
-    public List<GruVistaTabEntity> getWaiting(int batchSize) {
+    public List<GruVistaTabEntity> getWaitingMarkProgress(int batchSize) {
         List<GruVistaTabEntity> records = gruVistaTabMapper.selectWaitingRecords(BATCH_SIZE);
 
         if (records != null && !records.isEmpty()) {
@@ -43,6 +43,7 @@ public class AppAdapterDAO {
     /*
     trans и IO: сохранение в таблицу trans и IOMsgs
     */
+
     @Transactional
     public void saveOutboundAudit(AppAdapterTransEntity trans, AppAdapterIoMsgsEntity ioMsg) {
         transMapper.insert(trans);
@@ -83,6 +84,7 @@ public class AppAdapterDAO {
     /*
     trans: запись по id
     */
+
     public AppAdapterTransEntity findTransByRequestId(String requestId) {
         return transMapper.findByRequestId(requestId);
     }

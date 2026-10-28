@@ -1,7 +1,7 @@
 package foodcards.adapter.service.consumer;
 
 import foodcards.adapter.builder.EntityBuilder;
-import foodcards.adapter.dao.AppAdapterDAO;
+import foodcards.adapter.dao.AdapterDao;
 import foodcards.adapter.dto.EventReceiveDTO;
 import foodcards.adapter.mapper.dto.VistaUpdateDTO;
 import foodcards.adapter.models.GruRejectTabEntity;
@@ -21,10 +21,10 @@ import static foodcards.adapter.utils.Constants.STATUS_ERROR;
 @Service
 @RequiredArgsConstructor
 public class UpdateStatusService {
-    private final AppAdapterDAO dao;
+    private final AdapterDao dao;
     private final EntityBuilder entityBuilder;
 
-    @Transactional
+
     public void processSuccessEvents(List<EventReceiveDTO> events) {
 
         if (events == null || events.isEmpty()) {
@@ -56,7 +56,6 @@ public class UpdateStatusService {
         }
     }
 
-    @Transactional
     public void processErrorEvents(List<EventReceiveDTO> events) {
         if (events == null || events.isEmpty()) return;
 

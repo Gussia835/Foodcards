@@ -1,8 +1,8 @@
 package foodcards.adapter.controller;
 
-import foodcards.adapter.dao.AppAdapterDAO;
+import foodcards.adapter.dao.AdapterDao;
 import foodcards.adapter.models.AppAdapterConfigEntity;
-import foodcards.adapter.service.producer.AdapterManagerService;
+import foodcards.adapter.service.AdapterManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AdminRestController {
 
-    private final AppAdapterDAO dao;
+    private final AdapterDao dao;
     private final AdapterManagerService adapterManager;
 
     @GetMapping("/stats")

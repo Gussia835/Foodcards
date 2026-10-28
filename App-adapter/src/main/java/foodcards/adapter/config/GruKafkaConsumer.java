@@ -1,6 +1,6 @@
 package foodcards.adapter.config;
 
-import foodcards.adapter.service.consumer.KafkaMessageProcessor;
+import foodcards.adapter.service.consumer.KafkaConsumerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -9,7 +9,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.listener.*;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,13 +17,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class GruKafkaConsumer {
-
     private final ConcurrentKafkaListenerContainerFactory<String, String> factory;
     private ConcurrentMessageListenerContainer<String, String> container;
-    private final KafkaMessageProcessor messageProcessor;
+    private final KafkaConsumerService messageProcessor;
     private Long configId;
 
-    public void start(Long configId, String topicIn, String groupId, int concurrency) {
+    public void start(Long configId, String topicIn, String groupId, int concurrency, String systemId) {
         if (container != null && container.isRunning()) {
             log.warn("Consumer для configId={} уже запущен", configId);
             return;
@@ -47,7 +45,7 @@ public class GruKafkaConsumer {
             log.info("configId={} Получил батч размером {} сообщений", groupId, jsonMessages.size());
 
             try {
-                messageProcessor.processMessages(jsonMessages);
+                messageProcessor.processMessages(jsonMessages, systemId);
                 acknowledgment.acknowledge();
                 log.info("Consumer {} успешно обработал и подтвердил батч", configId);
 
@@ -59,7 +57,6 @@ public class GruKafkaConsumer {
 
         container.start();
         log.info("Consumer {} успешно запущен", configId);
-
     }
 
     public void stop() {

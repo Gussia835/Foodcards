@@ -1,14 +1,16 @@
-package foodcards.adapter.service.producer;
+package foodcards.adapter.service;
 
 import foodcards.adapter.config.GruKafkaConsumer;
-import foodcards.adapter.dao.AppAdapterDAO;
+import foodcards.adapter.dao.AdapterDao;
 import foodcards.adapter.models.AppAdapterConfigEntity;
+import foodcards.adapter.service.entityProcessor.EntityProcessor;
+import foodcards.adapter.service.producer.KafkaProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,16 +21,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class AdapterManagerService {
 
-    private final ObjectProvider<GruKafkaProducer> producerProvider;
+    private final ObjectProvider<KafkaProducer> producerProvider;
     private final ObjectProvider<GruKafkaConsumer> consumerProvider;
-    private final AppAdapterDAO dao;
+    private final AdapterDao dao;
 
     @Value("${KAFKA_CONCURRENCY:5}")
     private int defaultConcurrency;
 
     private final Map<Long, AppAdapterConfigEntity> activeConfigs = new ConcurrentHashMap<>();
-    private final Map<Long, GruKafkaProducer> activeProducers = new ConcurrentHashMap<>();
+    private final Map<Long, KafkaProducer> activeProducers = new ConcurrentHashMap<>();
     private final Map<Long, GruKafkaConsumer> activeConsumers = new ConcurrentHashMap<>();
+
+    private final ApplicationContext context;
+
 
     private final AtomicInteger workerCounter = new AtomicInteger(0);
 
@@ -47,14 +52,19 @@ public class AdapterManagerService {
         if (activeProducers.containsKey(id)) {
             stopProducer(id);
         }
-        GruKafkaProducer newWorker = producerProvider.getObject();
+
+        String beanName = config.getSystemId().toLowerCase() + "Processor";
+        EntityProcessor processor = context.getBean(beanName, EntityProcessor.class);
+
+        KafkaProducer newWorker = producerProvider.getObject();
         activeProducers.put(id, newWorker);
-        newWorker.start(config);
+
+        newWorker.start(config, processor);
         log.info("Producer запущен для config ID={}", id);
     }
 
     public void stopProducer(Long id) {
-        GruKafkaProducer worker = activeProducers.remove(id);
+        KafkaProducer worker = activeProducers.remove(id);
         if (worker != null) {
             worker.shutDown();
             log.info("Producer остановлен для config ID={}", id);
@@ -68,7 +78,7 @@ public class AdapterManagerService {
         }
         GruKafkaConsumer newConsumer = consumerProvider.getObject();
         activeConsumers.put(id, newConsumer);
-        newConsumer.start(id, config.getTopicIn(), "app-adapter-group", defaultConcurrency);
+        newConsumer.start(id, config.getTopicIn(), "app-adapter-group", defaultConcurrency, config.getSystemId());
         log.info("Consumer запущен для config ID={}", id);
     }
 

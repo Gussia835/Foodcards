@@ -2,7 +2,6 @@ package foodcards.adapter.service;
 
 import foodcards.adapter.mapper.AppAdapterConfigMapper;
 import foodcards.adapter.models.AppAdapterConfigEntity;
-import foodcards.adapter.service.producer.AdapterManagerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

@@ -19,6 +19,10 @@ spring:
       minimum-idle: 5
       connection-timeout: 30000
 
+  liquibase:
+    change-log: classpath:db/changelog/changelog-main.yaml
+    default_schema: ACC_APP_ADAPTER
+
   kafka:
     bootstrap-servers: kafka:9092
     producer:
@@ -34,6 +38,8 @@ mybatis:
   type-aliases-package: foodcards.adapter.models
   configuration:
     map-underscore-to-camel-case: true
+
+
 
 app:
   kafka:

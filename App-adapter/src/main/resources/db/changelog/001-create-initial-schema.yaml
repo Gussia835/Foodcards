@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Gussia835
+      comment: "Создание конфиг таблицы"
+
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: APP_ADAPTER_CONFIG
+
+      changes:
+        - createTable:
+            tableName: APP_ADAPTER_CONFIG
+            columns:
+              - column:
+                  name: ID
+                  type: NUMBER
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: SYSTEM_ID
+                  type: VARCHAR2(50)
+
+              - column:
+                  name: EVENT_TYPE
+                  type: VARCHAR2(50)
+
+              - column:
+                  name: ENTITY_TYPE
+                  type: VARCHAR2(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: TOPIC_IN
+                  type: VARCHAR2(100)
+
+              - column:
+                  name: STATUS_IN
+                  type: NUMBER(1)
+
+              - column:
+                  name: TOPIC_OUT
+                  type: VARCHAR2(100)
+
+              - column:
+                  name: STATUS_OUT
+                  type: NUMBER(1)
+
+              - column:
+                  name: INS_TS
+                  type: TIMESTAMP
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+
+              - column:
+                  name: UPD_TS
+                  type: TIMESTAMP
