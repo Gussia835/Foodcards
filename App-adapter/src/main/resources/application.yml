@@ -21,7 +21,7 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/changelog-main.yaml
-    default_schema: ACC_APP_ADAPTER
+    default_schema: GRU
 
   kafka:
     bootstrap-servers: kafka:9092
@@ -39,8 +39,6 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-
-
 app:
   kafka:
     batch-size: 100
@@ -49,3 +47,12 @@ app:
     topic-in-balance: gru.balance.in
     topic-out-food: gru.food.out
     topic-in-food: gru.food.in
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+  metrics:
+    tags:
+      application: ${spring.application.name}

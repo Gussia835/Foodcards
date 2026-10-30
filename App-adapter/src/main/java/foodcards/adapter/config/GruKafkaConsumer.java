@@ -1,5 +1,6 @@
 package foodcards.adapter.config;
 
+import foodcards.adapter.service.metrics.MetricsService;
 import foodcards.adapter.service.consumer.KafkaConsumerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,9 @@ public class GruKafkaConsumer {
     private final ConcurrentKafkaListenerContainerFactory<String, String> factory;
     private ConcurrentMessageListenerContainer<String, String> container;
     private final KafkaConsumerService messageProcessor;
+    private final MetricsService metricsService;
     private Long configId;
+
 
     public void start(Long configId, String topicIn, String groupId, int concurrency, String systemId) {
         if (container != null && container.isRunning()) {
@@ -46,10 +49,14 @@ public class GruKafkaConsumer {
 
             try {
                 messageProcessor.processMessages(jsonMessages, systemId);
+                metricsService.incReceivedRecords(jsonMessages.size());
+
                 acknowledgment.acknowledge();
                 log.info("Consumer {} успешно обработал и подтвердил батч", configId);
 
             } catch (Exception e) {
+
+                metricsService.incErrorRecords();
                 log.error("Consumer {} упал. Offset НЕ подтвержден, сообщения вернутся в Kafka", configId, e);
                 throw new RuntimeException("Ошибка обработки сообщений в Consumer", e);
             }

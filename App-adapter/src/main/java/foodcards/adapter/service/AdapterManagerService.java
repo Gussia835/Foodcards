@@ -2,6 +2,7 @@ package foodcards.adapter.service;
 
 import foodcards.adapter.config.GruKafkaConsumer;
 import foodcards.adapter.dao.AdapterDao;
+import foodcards.adapter.service.metrics.MetricsService;
 import foodcards.adapter.models.AppAdapterConfigEntity;
 import foodcards.adapter.service.entityProcessor.EntityProcessor;
 import foodcards.adapter.service.producer.KafkaProducer;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -24,6 +24,8 @@ public class AdapterManagerService {
     private final ObjectProvider<KafkaProducer> producerProvider;
     private final ObjectProvider<GruKafkaConsumer> consumerProvider;
     private final AdapterDao dao;
+    private final MetricsService metricsService;
+
 
     @Value("${KAFKA_CONCURRENCY:5}")
     private int defaultConcurrency;
@@ -33,9 +35,6 @@ public class AdapterManagerService {
     private final Map<Long, GruKafkaConsumer> activeConsumers = new ConcurrentHashMap<>();
 
     private final ApplicationContext context;
-
-
-    private final AtomicInteger workerCounter = new AtomicInteger(0);
 
     public void addConfig(AppAdapterConfigEntity config) {
         log.info("добавление конфигурации: {}", config);
@@ -60,6 +59,9 @@ public class AdapterManagerService {
         activeProducers.put(id, newWorker);
 
         newWorker.start(config, processor);
+
+        metricsService.incrementProducers();
+
         log.info("Producer запущен для config ID={}", id);
     }
 
@@ -69,6 +71,8 @@ public class AdapterManagerService {
             worker.shutDown();
             log.info("Producer остановлен для config ID={}", id);
         }
+
+        metricsService.decrementProducers();
     }
 
     public void startConsumer(AppAdapterConfigEntity config) {
@@ -79,7 +83,12 @@ public class AdapterManagerService {
         GruKafkaConsumer newConsumer = consumerProvider.getObject();
         activeConsumers.put(id, newConsumer);
         newConsumer.start(id, config.getTopicIn(), "app-adapter-group", defaultConcurrency, config.getSystemId());
+
+        metricsService.incrementConsumers();
+
         log.info("Consumer запущен для config ID={}", id);
+
+
     }
 
     public void stopConsumer(Long id) {
@@ -88,6 +97,8 @@ public class AdapterManagerService {
             consumer.stop();
             log.info("Consumer остановлен для config ID={}", id);
         }
+
+        metricsService.decrementConsumers();
     }
 
     public void startConfig(AppAdapterConfigEntity config) {
@@ -122,12 +133,4 @@ public class AdapterManagerService {
         activeConfigs.values().forEach(this::restartConfig);
     }
 
-    public int getActiveProducersCount() {
-        return activeProducers.size();
-
-    }
-    public int getActiveConsumersCount() {
-        return activeConsumers.size();
-
-    }
 }

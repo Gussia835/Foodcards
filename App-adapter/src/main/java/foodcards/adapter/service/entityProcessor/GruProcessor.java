@@ -4,12 +4,14 @@ import foodcards.adapter.builder.EntityBuilder;
 import foodcards.adapter.dao.AdapterDao;
 import foodcards.adapter.dto.KafkaReceiveDTO;
 import foodcards.adapter.dto.KafkaSendDTO;
+import foodcards.adapter.service.metrics.MetricsService;
 import foodcards.adapter.models.AppAdapterConfigEntity;
 import foodcards.adapter.models.AppAdapterIoMsgsEntity;
 import foodcards.adapter.models.AppAdapterTransEntity;
 import foodcards.adapter.service.consumer.UpdateStatusService;
 import foodcards.adapter.utils.KafkaSenderUtil;
 import foodcards.adapter.service.producer.TaskGenerator.GruTaskGeneratorService;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ public class GruProcessor implements EntityProcessor {
     private final KafkaSenderUtil producerService;
     private final UpdateStatusService updateService;
 
+    private final MetricsService metricsService;
 
     @Override
     public String getEntityType() {
@@ -39,42 +42,61 @@ public class GruProcessor implements EntityProcessor {
     @Override
     @Transactional
     public boolean processOutboundBatch(AppAdapterConfigEntity config) {
-        KafkaSendDTO sendDTO = taskGeneratorService.generateDTO(getEntityType(), config.getEventType());
+        Timer.Sample sample = metricsService.startTimer();
 
-        if (sendDTO == null) {
-            return false;
+        try {
+            KafkaSendDTO sendDTO = taskGeneratorService.generateDTO(getEntityType(), config.getEventType());
+
+            if (sendDTO == null) {
+                return false;
+            }
+
+            String json = producerService.toJson(sendDTO);
+
+            /*
+            Формируем сущности для записи
+             */
+            AppAdapterTransEntity trans = entityBuilder.buildTrans(
+                    sendDTO.getRequestId(), config.getEventType(), json);
+            trans.setStatus(STATUS_PROGRESS);
+
+            AppAdapterIoMsgsEntity ioMsg = entityBuilder.buildIoMsg(
+                    null, config.getEventType(), DIR_OUT, json);
+
+            /*
+            Записываем в trans и IoMsgs таблицы информацию
+             */
+            dao.saveOutboundAudit(trans, ioMsg);
+
+            /*
+            Отправляем в kafka
+             */
+            producerService.send(config.getTopicOut(), sendDTO.getRequestId(), json);
+            dao.markTransactionAsSentToKafka(sendDTO.getRequestId());
+
+            metricsService.incSentRecords();
+
+            log.info("GRU: Успешно отправлен батч, requestId={}", sendDTO.getRequestId());
+            return true;
+
+        } catch (Exception e) {
+
+            metricsService.incErrorRecords();
+            throw e;
+
+        } finally {
+            metricsService.stopTimer(sample);
         }
 
-        String json = producerService.toJson(sendDTO);
 
-        /*
-        Формируем сущности для записи
-         */
-        AppAdapterTransEntity trans = entityBuilder.buildTrans(
-                sendDTO.getRequestId(), config.getEventType(), json);
-        trans.setStatus(STATUS_PROGRESS);
-
-        AppAdapterIoMsgsEntity ioMsg = entityBuilder.buildIoMsg(
-                null, config.getEventType(), DIR_OUT, json);
-
-        /*
-        Записываем в trans и IoMsgs таблицы информацию
-         */
-        dao.saveOutboundAudit(trans, ioMsg);
-
-        /*
-        Отправляем в kafka
-         */
-        producerService.send(config.getTopicOut(), sendDTO.getRequestId(), json);
-        dao.markTransactionAsSentToKafka(sendDTO.getRequestId());
-
-        log.info("GRU: Успешно отправлен батч, requestId={}", sendDTO.getRequestId());
-        return true;
     }
 
     @Override
     @Transactional
     public void processInboundBatch(List<String> jsonMessages) {
+
+        int processedCount = 0;
+
         for (String jsonMessage : jsonMessages) {
             KafkaReceiveDTO receiveDTO = producerService.getReceiveFromJson(jsonMessage);
             String requestId = receiveDTO.getRequestId();
@@ -95,8 +117,11 @@ public class GruProcessor implements EntityProcessor {
             }
 
             dao.markTransactionAsProcessed(requestId);
+            ++processedCount;
             log.info("Статус транзакции обновлен на PROCESSED. requestId: {}", requestId);
         }
+
+        metricsService.incProcessedMessages(processedCount);
     }
 
 }
