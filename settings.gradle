@@ -1,9 +1,21 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    plugins {
+        id 'io.quarkus' version '3.15.1'
+    }
+}
+
 rootProject.name = 'FoodCards'
 
 include 'app-adapter'
 include 'publisher'
 include 'generator'
+include 'app-changer'
 
 project(':app-adapter').projectDir = file('App-adapter')
 project(':publisher').projectDir = file('FoodCards-Publisher-System')
 project(':generator').projectDir = file('Mealcard-File-Generator')
+project(':app-changer').projectDir = file('app-changer')

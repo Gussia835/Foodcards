@@ -1,5 +1,13 @@
-.gradle
+.gradle/
 .idea
 build
-**/build
-**/.gradle
+
+.idea/**
+.vscode/**
+*.iml
+
+**/build/**
+**/.gradle/**
+
+.DS_Store
+Thumbs.db

@@ -29,11 +29,11 @@ services:
       - oracle_data:/opt/oracle/oradata
       - ./init-oracle:/container-entrypoint-initdb.d
     healthcheck:
-      test: [ "CMD-SHELL", "echo 'exit' | sqlplus -L sys/${ORACLE_SYS_PASSWORD}@//localhost:1521/XE as sysdba | grep -q 'Connected to:'" ]
-      interval: 15s
-      timeout: 10s
-      retries: 30
-      start_period: 40s
+      test: [ "CMD-SHELL", "echo 'exit' | sqlplus -L GRU/${GRU_APP_PASSWORD}@//localhost:1521/XEPDB1 | grep -q 'Connected to:'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   publisher:
     build:
@@ -119,6 +119,24 @@ services:
       - GRU_APP_PASSWORD=${GRU_APP_PASSWORD}
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - KAFKA_CONCURRENCY=5
+    depends_on:
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - foodcards-network
+
+  app-changer:
+    build:
+      context: .
+      dockerfile: app-changer/Dockerfile.native
+    container_name: app_changer
+    ports:
+      - "8089:8080"
+    environment:
+      - QUARKUS_PROFILE=docker
+      - GRU_APP_PASSWORD=${GRU_APP_PASSWORD}
     depends_on:
       oracle:
         condition: service_healthy

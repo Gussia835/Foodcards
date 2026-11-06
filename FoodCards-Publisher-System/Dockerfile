@@ -4,6 +4,8 @@ WORKDIR /app
 COPY gradle ./gradle
 COPY gradlew build.gradle settings.gradle ./
 
+RUN chmod +x gradlew
+
 COPY FoodCards-Publisher-System/build.gradle ./FoodCards-Publisher-System/
 COPY FoodCards-Publisher-System/src ./FoodCards-Publisher-System/src
 

@@ -36,6 +36,14 @@ public class AdapterManagerService {
 
     private final ApplicationContext context;
 
+    public int getActiveProducersCount() {
+        return metricsService.getActiveProducersCount().get();
+    }
+
+    public int getActiveConsumersCount() {
+        return metricsService.getActiveConsumersCount().get();
+    }
+
     public void addConfig(AppAdapterConfigEntity config) {
         log.info("добавление конфигурации: {}", config);
 
