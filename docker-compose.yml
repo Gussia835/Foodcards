@@ -136,7 +136,9 @@ services:
       - "8089:8080"
     environment:
       - QUARKUS_PROFILE=docker
-      - GRU_APP_PASSWORD=${GRU_APP_PASSWORD}
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://pom_db:5432/pom_db
+      - QUARKUS_DATASOURCE_USERNAME=pom
+      - QUARKUS_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       oracle:
         condition: service_healthy

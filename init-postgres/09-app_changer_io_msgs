@@ -1,0 +1,10 @@
+CREATE TABLE app_changer.app_changer_io_msgs (
+    id            BIGSERIAL PRIMARY KEY,
+    trans_id      BIGINT REFERENCES app_changer.app_changer_trans(id),
+    protocol_type VARCHAR(64),
+    msg_type      VARCHAR(64),
+    dir           VARCHAR(16), -- 'IN' или 'OUT'
+    msg           JSONB,
+    ins_ts        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    node_id       VARCHAR(8)
+);

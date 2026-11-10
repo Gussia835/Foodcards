@@ -31,7 +31,6 @@ public class GruKafkaListener {
         processMessage(rawJson);
     }
 
-
     private void processMessage(String rawJson) {
         try {
             GruIncomingDTO dto = jsonUtil.fromJson(rawJson, GruIncomingDTO.class);

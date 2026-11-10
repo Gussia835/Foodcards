@@ -16,7 +16,7 @@ public class AppAdapterTransEntity {
     private String systemId;
     private String requestId;
     private String eventType;
-    private String data;
+    private String data; //удалить
     private String status;
     private String respCode;
     private String respDesc;
