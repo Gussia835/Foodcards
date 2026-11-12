@@ -144,8 +144,8 @@ services:
       - APP_KAFKA_CONCURRENCY_DEFAULT=1
       - APP_KAFKA_CONCURRENCY_GRU_BALANCE=3
     depends_on:
-      oracle:
-        condition: service_healthy
+      postgres:
+        condition: service_started
       kafka:
         condition: service_healthy
     networks:

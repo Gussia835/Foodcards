@@ -1,4 +1,4 @@
-INSERT INTO app_changer.app_changer_config (
+INSERT INTO acc_app_changer.app_changer_config (
     system_id, event_type, entity_type, protocol_type, protocol_in, protocol_out, status_in, status_out
 )
 SELECT
@@ -23,6 +23,6 @@ SELECT
     entity_type,
     status_in,
     COUNT(*) as count
-FROM app_changer.app_changer_config
+FROM acc_app_changer.app_changer_config
 GROUP BY system_id, event_type, entity_type, status_in
 ORDER BY event_type, status_in;

@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION app_changer.sp_process_balance(
+CREATE OR REPLACE FUNCTION acc_app_changer.sp_process_balance(
     p_system_account VARCHAR,
     p_operation      VARCHAR,
     p_amount         NUMERIC,
@@ -39,3 +39,5 @@ EXCEPTION
         out_code := -1;
         out_message := 'Error: ' || SQLERRM;
         RETURN NEXT;
+END;
+$$ LANGUAGE plpgsql;
