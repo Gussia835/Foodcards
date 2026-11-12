@@ -56,10 +56,9 @@ public class AdapterDao {
     */
     @Transactional
     public void markTransactionAsSentToKafka(String requestId) {
-        AppAdapterTransEntity trans = transMapper.findByRequestId(requestId);
-        if (trans != null) {
-            transMapper.updateStatus(trans.getId(), STATUS_SENT_TO_KAFKA);
-        }
+
+        transMapper.updateStatusByRequestId(requestId, STATUS_SENT_TO_KAFKA);
+
     }
 
     /*
@@ -67,10 +66,8 @@ public class AdapterDao {
     */
     @Transactional
     public void markTransactionAsProcessed(String requestId) {
-        AppAdapterTransEntity trans = transMapper.findByRequestId(requestId);
-        if (trans != null) {
-            transMapper.updateStatus(trans.getId(), STATUS_PROCESSED);
-        }
+        transMapper.updateStatusByRequestId(requestId, STATUS_PROCESSED);
+
     }
 
     /*

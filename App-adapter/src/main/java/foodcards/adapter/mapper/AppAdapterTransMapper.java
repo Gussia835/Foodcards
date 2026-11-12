@@ -11,6 +11,6 @@ public interface AppAdapterTransMapper {
     void updateStatus(@Param("id") Long id, @Param("status") String status);
 
     AppAdapterTransEntity findByRequestId(@Param("requestId") String requestId);
-
+    void updateStatusByRequestId(@Param("requestId") String requestId, @Param("status") String status);
     int countByStatus(@Param("status") String status);
 }

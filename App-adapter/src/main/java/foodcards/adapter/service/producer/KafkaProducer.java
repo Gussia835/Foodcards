@@ -22,7 +22,6 @@ public class KafkaProducer {
     private final TimeParserUtil timeParser;
     private EntityProcessor processor;
 
-
     @Value("${app.kafka.sleep-time-ms:" + DEFAULT_SLEEP_TIME + "}")
     private String sleepTimeConfig;
 

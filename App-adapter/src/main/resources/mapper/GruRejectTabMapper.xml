@@ -5,7 +5,7 @@
 <mapper namespace="foodcards.adapter.mapper.GruRejectTabMapper">
     <insert id="insert" parameterType="foodcards.adapter.models.GruRejectTabEntity">
         <selectKey keyProperty="id" resultType="java.lang.Long" order="BEFORE">
-            SELECT GRU_REJECT_TAB_SEQ.NEXTVAL
+            SELECT GRU.GRU_REJECT_TAB_SEQ.NEXTVAL
             FROM DUAL
         </selectKey>
 
@@ -21,25 +21,25 @@
     </insert>
 
     <insert id="batchInsert">
-        INSERT ALL
-        <foreach collection="list" item="item">
-            INTO GRU.GRU_REJECT_TAB (
-            ID, SYSTEMACCOUNT, VISTA_TAB_ID, UTERRARIO, OLDTBAL, NEWTBAL,
-            FRONT_TIMESTAMP, FRONT_STATUS, REJECT_DESC, CHECK_STATUS, CHECK_TIMESTAMP
-            ) VALUES (
-            GRU_REJECT_TAB_SEQ.NEXTVAL,
-            #{item.systemAccount},
-            #{item.vistaTabId},
-            #{item.uterrario},
-            #{item.oldTbal},
-            #{item.newTbal},
-            SYSDATE,
-            #{item.frontStatus},
-            #{item.rejectDesc},
-            #{item.checkStatus},
-            SYSDATE
-            )
+        INSERT INTO GRU.GRU_REJECT_TAB (
+        ID, SYSTEMACCOUNT, VISTA_TAB_ID, UTERRARIO, OLDTBAL, NEWTBAL,
+        FRONT_TIMESTAMP, FRONT_STATUS, REJECT_DESC, CHECK_STATUS, CHECK_TIMESTAMP
+        )
+        SELECT GRU.GRU_REJECT_TAB_SEQ.NEXTVAL, t.* FROM (
+        <foreach collection="list" item="item" separator=" UNION ALL ">
+            SELECT
+            #{item.systemAccount} AS SYSTEMACCOUNT,
+            #{item.vistaTabId} AS VISTA_TAB_ID,
+            #{item.uterrario} AS UTERRARIO,
+            #{item.oldTbal} AS OLDTBAL,
+            #{item.newTbal} AS NEWTBAL,
+            SYSDATE AS FRONT_TIMESTAMP,
+            #{item.frontStatus} AS FRONT_STATUS,
+            #{item.rejectDesc} AS REJECT_DESC,
+            #{item.checkStatus} AS CHECK_STATUS,
+            SYSDATE AS CHECK_TIMESTAMP
+            FROM DUAL
         </foreach>
-        SELECT 1 FROM DUAL
+        ) t
     </insert>
 </mapper>

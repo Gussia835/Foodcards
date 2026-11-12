@@ -24,7 +24,6 @@ public class UpdateStatusService {
     private final AdapterDao dao;
     private final EntityBuilder entityBuilder;
 
-
     public void processSuccessEvents(List<EventReceiveDTO> events) {
 
         if (events == null || events.isEmpty()) {
