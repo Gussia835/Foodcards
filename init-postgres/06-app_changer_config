@@ -1,4 +1,4 @@
-CREATE TABLE app_changer.app_changer_config (
+CREATE TABLE acc_app_changer.app_changer_config (
     id            BIGSERIAL PRIMARY KEY,
     system_id     VARCHAR(255),
     event_type    VARCHAR(255),

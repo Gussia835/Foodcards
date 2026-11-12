@@ -139,6 +139,10 @@ services:
       - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://pom_db:5432/pom_db
       - QUARKUS_DATASOURCE_USERNAME=pom
       - QUARKUS_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - APP_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - APP_KAFKA_GROUP_ID_PREFIX=app-changer-group
+      - APP_KAFKA_CONCURRENCY_DEFAULT=1
+      - APP_KAFKA_CONCURRENCY_GRU_BALANCE=3
     depends_on:
       oracle:
         condition: service_healthy

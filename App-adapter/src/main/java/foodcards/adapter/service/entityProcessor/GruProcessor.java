@@ -57,7 +57,7 @@ public class GruProcessor implements EntityProcessor {
             Формируем сущности для записи
              */
             AppAdapterTransEntity trans = entityBuilder.buildTrans(
-                    sendDTO.getRequestId(), config.getEventType(), json);
+                    sendDTO.getRequestId(), config.getEventType());
             trans.setStatus(STATUS_PROGRESS);
 
             AppAdapterIoMsgsEntity ioMsg = entityBuilder.buildIoMsg(

@@ -11,12 +11,11 @@ import static foodcards.adapter.utils.Constants.*;
 @Component
 public class EntityBuilder {
 
-    public AppAdapterTransEntity buildTrans(String requestId, String eventType, String jsonMessage) {
+    public AppAdapterTransEntity buildTrans(String requestId, String eventType) {
         return AppAdapterTransEntity.builder()
                 .systemId(SYSTEM_ID)
                 .requestId(requestId)
                 .eventType(eventType)
-                .data(jsonMessage)
                 .status(STATUS_PROGRESS)
                 .build();
     }
