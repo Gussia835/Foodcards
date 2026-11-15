@@ -1,6 +1,5 @@
 ALTER SESSION SET CONTAINER = XEPDB1;
 
--- Очищаем старые тестовые данные, чтобы не было дублей
 TRUNCATE TABLE ACC_APP_ADAPTER.APP_ADAPTER_CONFIG;
 
 DECLARE

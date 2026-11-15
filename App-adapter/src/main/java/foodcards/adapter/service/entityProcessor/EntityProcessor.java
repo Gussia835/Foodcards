@@ -7,7 +7,7 @@ import foodcards.adapter.models.AppAdapterTransEntity;
 import java.util.List;
 
 public interface EntityProcessor {
-    String getEntityType();
+    String getSystemId();
 
     boolean processOutboundBatch(AppAdapterConfigEntity config);
     void processInboundBatch(List<String> jsonMessages);

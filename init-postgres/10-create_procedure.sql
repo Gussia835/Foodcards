@@ -30,7 +30,7 @@ BEGIN
         ELSE
             out_new_tbal := v_curbal::VARCHAR;
             out_code := -2;
-            out_message := 'Unknown operation: ' || p_operation;
+            out_message := 'Unknown operation: ' || COALESCE(p_operation, 'NULL');
     END CASE;
 
     RETURN NEXT;

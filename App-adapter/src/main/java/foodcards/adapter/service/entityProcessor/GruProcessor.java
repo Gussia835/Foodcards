@@ -35,7 +35,7 @@ public class GruProcessor implements EntityProcessor {
     private final MetricsService metricsService;
 
     @Override
-    public String getEntityType() {
+    public String getSystemId() {
         return "GRU";
     }
 
@@ -45,7 +45,7 @@ public class GruProcessor implements EntityProcessor {
         Timer.Sample sample = metricsService.startTimer();
 
         try {
-            KafkaSendDTO sendDTO = taskGeneratorService.generateDTO(getEntityType(), config.getEventType());
+            KafkaSendDTO sendDTO = taskGeneratorService.generateDTO(config.getEntityType(), config.getEventType());
 
             if (sendDTO == null) {
                 return false;

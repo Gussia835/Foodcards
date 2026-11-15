@@ -1,4 +1,3 @@
--- Очищаем старые данные
 TRUNCATE TABLE acc_app_changer.app_changer_config RESTART IDENTITY;
 
 INSERT INTO acc_app_changer.app_changer_config (
@@ -11,7 +10,6 @@ SELECT
     'KAFKA' AS protocol_type,
 
     'gru.' || LOWER(CASE WHEN i % 2 = 0 THEN 'BALANCE' ELSE 'FOOD' END) || '.out' AS protocol_in,
-
     'gru.' || LOWER(CASE WHEN i % 2 = 0 THEN 'BALANCE' ELSE 'FOOD' END) || '.in' AS protocol_out,
 
     CASE WHEN i % 7 = 0 THEN 0 ELSE 1 END AS status_in,
