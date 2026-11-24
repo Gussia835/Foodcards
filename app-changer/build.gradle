@@ -8,6 +8,26 @@ repositories {
     mavenLocal()
 }
 
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationTestCompileOnly.extendsFrom testCompileOnly
+    integrationTestAnnotationProcessor.extendsFrom testAnnotationProcessor
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            srcDir 'src/integrationTest/java'
+        }
+        resources {
+            srcDir 'src/integrationTest/resources'
+        }
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
+}
+
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
 
@@ -35,6 +55,12 @@ dependencies {
     testImplementation 'net.datafaker:datafaker:2.1.0'
     testImplementation 'io.rest-assured:rest-assured'
 
+    testImplementation 'io.quarkus:quarkus-messaging-kafka'
+    testImplementation 'io.quarkus:quarkus-test-kafka-companion'
+    testImplementation 'org.testcontainers:postgresql:1.19.3'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
+    testImplementation 'org.awaitility:awaitility:4.2.0'
+
 }
 
 group = 'org.Foodcards'
@@ -45,11 +71,33 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+    useJUnitPlatform()
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    shouldRunAfter test
+}
+
+tasks.named('processIntegrationTestResources') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+check.dependsOn integrationTest
+
 compileJava {
     options.encoding = 'UTF-8'
     options.compilerArgs << '-parameters'
 }
 
 compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

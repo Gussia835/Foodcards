@@ -6,18 +6,17 @@ COPY gradlew build.gradle settings.gradle ./
 
 RUN chmod +x gradlew
 
-COPY FoodCards-Publisher-System/build.gradle ./FoodCards-Publisher-System/
-COPY FoodCards-Publisher-System/src ./FoodCards-Publisher-System/src
+COPY src ./src
 
 RUN chmod +x gradlew
-RUN ./gradlew :publisher:shadowJar --no-daemon
+RUN ./gradlew shadowJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 RUN mkdir -p /app/config /app/logs /app/incoming /app/target
 
-COPY --from=builder /app/FoodCards-Publisher-System/build/libs/mealcard-publisher.jar app.jar
+COPY --from=builder /app/build/libs/mealcard-publisher.jar app.jar
 
 EXPOSE 666 6666
 

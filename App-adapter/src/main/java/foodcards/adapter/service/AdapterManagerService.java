@@ -5,7 +5,8 @@ import foodcards.adapter.dao.AdapterDao;
 import foodcards.adapter.service.metrics.MetricsService;
 import foodcards.adapter.models.AppAdapterConfigEntity;
 import foodcards.adapter.service.entityProcessor.EntityProcessor;
-import foodcards.adapter.service.producer.KafkaProducer;
+import foodcards.adapter.service.producer.KafkaProducerWorker;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -14,24 +15,33 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdapterManagerService {
 
-    private final ObjectProvider<KafkaProducer> producerProvider;
+    private final ObjectProvider<KafkaProducerWorker> producerProvider;
     private final ObjectProvider<GruKafkaConsumer> consumerProvider;
     private final AdapterDao dao;
     private final MetricsService metricsService;
 
+    private final ExecutorService producerExecutor = Executors.newFixedThreadPool(50, r -> {
+        Thread t = new Thread(r);
+        t.setName("Producer-Worker-" + t.getId());
+        t.setDaemon(true);
+        return t;
+    });
 
     @Value("${KAFKA_CONCURRENCY:5}")
     private int defaultConcurrency;
 
+    @Value("${app.kafka.sleep-time-ms:5000}")
+    private String sleepTimeConfig;
+
     private final Map<Long, AppAdapterConfigEntity> activeConfigs = new ConcurrentHashMap<>();
-    private final Map<Long, KafkaProducer> activeProducers = new ConcurrentHashMap<>();
+    private final Map<Long, KafkaProducerWorker> activeProducers = new ConcurrentHashMap<>();
     private final Map<Long, GruKafkaConsumer> activeConsumers = new ConcurrentHashMap<>();
 
     private final ApplicationContext context;
@@ -63,18 +73,22 @@ public class AdapterManagerService {
         String beanName = config.getSystemId().toLowerCase() + "Processor";
         EntityProcessor processor = context.getBean(beanName, EntityProcessor.class);
 
-        KafkaProducer newWorker = producerProvider.getObject();
+        KafkaProducerWorker newWorker = producerProvider.getObject();
         activeProducers.put(id, newWorker);
 
-        newWorker.start(config, processor);
+        newWorker.start(config, sleepTimeConfig, processor);
 
+        Future<?> future = producerExecutor.submit(newWorker.createTask());
+        newWorker.setExecutionFuture(future);
+
+        activeProducers.put(id, newWorker);
         metricsService.incrementProducers();
 
         log.info("Producer запущен для config ID={}", id);
     }
 
     public void stopProducer(Long id) {
-        KafkaProducer worker = activeProducers.remove(id);
+        KafkaProducerWorker worker = activeProducers.remove(id);
         if (worker != null) {
             worker.shutDown();
             log.info("Producer остановлен для config ID={}", id);
@@ -139,6 +153,20 @@ public class AdapterManagerService {
         log.info("перезапуск всех конфигураций");
 
         activeConfigs.values().forEach(this::restartConfig);
+    }
+
+    @PreDestroy
+    public void shutdownAll() {
+        log.info("Остановка всех Producer воркеров...");
+        activeProducers.keySet().forEach(this::stopProducer);
+        producerExecutor.shutdown();
+        try {
+            if (!producerExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                producerExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            producerExecutor.shutdownNow();
+        }
     }
 
 }

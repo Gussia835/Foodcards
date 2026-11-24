@@ -37,8 +37,8 @@ services:
 
   publisher:
     build:
-      context: .
-      dockerfile: FoodCards-Publisher-System/Dockerfile
+      context: ./FoodCards-Publisher-System
+      dockerfile: Dockerfile
     container_name: publisher
     ports:
       - "666:666"
@@ -64,8 +64,8 @@ services:
 
   generator:
     build:
-      context: .
-      dockerfile: Mealcard-File-Generator/Dockerfile
+      context: ./Mealcard-File-Generator
+      dockerfile: Dockerfile
     container_name: generator
     ports:
       - "90:90"
@@ -109,8 +109,8 @@ services:
 
   app-adapter:
     build:
-      context: .
-      dockerfile: App-adapter/Dockerfile
+      context: ./App-adapter
+      dockerfile: Dockerfile
     container_name: app_adapter
     ports:
       - "8083:8083"
@@ -129,8 +129,8 @@ services:
 
   app-changer:
     build:
-      context: .
-      dockerfile: app-changer/Dockerfile.native
+      context: ./app-changer
+      dockerfile: Dockerfile.native
     container_name: app_changer
     ports:
       - "8089:8080"
