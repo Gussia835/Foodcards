@@ -3,7 +3,7 @@
 // import io.quarkus.test.InjectMock;
 // import io.quarkus.test.junit.QuarkusTest;
 // import jakarta.inject.Inject;
-// import ru.mealcard.controller.ControllerClient;
+// import ru.mealcard.client.controller.ControllerClient;
 // import ru.mealcard.dao.AppChangerDao;
 // import ru.mealcard.dto.internal.IncomingMessageCommand;
 // import ru.mealcard.dto.internal.RoutingInfo;

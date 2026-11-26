@@ -1,4 +1,4 @@
-package ru.mealcard.controller;
+package ru.mealcard.client.controller;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"/>
+
+    <changeSet id="1" author="mealcard">
+        <createTable tableName="APP_CHANGER_CONFIG" schemaName="ACC_APP_CHANGER">
+            <column name="ID" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="SERVICE_NAME" type="VARCHAR(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="KAFKA_TOPIC_IN" type="VARCHAR(256)"/>
+            <column name="KAFKA_TOPIC_OUT" type="VARCHAR(256)"/>
+            <column name="STATUS" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INS_TS" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="UPD_TS" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="mealcard">
+        <createTable tableName="APP_CHANGER_TRANS" schemaName="ACC_APP_CHANGER">
+            <column name="ID" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="SYSTEM_ACCOUNT" type="VARCHAR(256)"/>
+            <column name="OPERATION" type="VARCHAR(50)"/>
+            <column name="AMOUNT" type="NUMERIC(18,2)"/>
+            <column name="CURRENCY" type="VARCHAR(10)"/>
+            <column name="STATUS" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RESPONSE" type="TEXT"/>
+            <column name="RESP_CODE" type="VARCHAR(16)"/>
+            <column name="RESP_DESC" type="VARCHAR(256)"/>
+            <column name="INS_TS" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="UPD_TS" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createIndex tableName="APP_CHANGER_TRANS" schemaName="ACC_APP_CHANGER" indexName="idx_trans_status">
+            <column name="STATUS"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="3" author="mealcard">
+        <createTable tableName="APP_CHANGER_IO_MSGS" schemaName="ACC_APP_CHANGER">
+            <column name="ID" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="DIRECTION" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOPIC" type="VARCHAR(256)"/>
+            <column name="OFFSET" type="BIGINT"/>
+            <column name="PAYLOAD" type="TEXT"/>
+            <column name="INS_TS" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -1,4 +1,4 @@
-package ru.mealcard.controller;
+package ru.mealcard.client.controller;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;

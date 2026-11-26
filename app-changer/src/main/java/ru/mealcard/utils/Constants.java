@@ -18,4 +18,6 @@ public class Constants {
     public static final String SYSTEM_SMART = "SMART";
 
     public static final String RESPONSE_CODE = "0";
+
+    public static final Integer CODE_ERROR_PROCEDURE = -1;
 }
