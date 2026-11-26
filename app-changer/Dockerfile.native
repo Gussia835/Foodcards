@@ -1,36 +1,28 @@
 FROM quay.io/quarkus/ubi9-quarkus-mandrel-builder-image:jdk-21 AS build
 
-USER root
 WORKDIR /work
-
-RUN curl -fL https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-amd64_linux.tar.xz | tar -xJ -C /tmp \
-    && mv /tmp/upx-4.2.4-amd64_linux/upx /usr/local/bin/upx \
-    && rm -rf /tmp/upx-4.2.4-amd64_linux
 
 COPY gradle ./gradle
 COPY gradlew settings.gradle build.gradle gradle.properties ./
 COPY src ./src
 
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
-RUN chown -R 1001:0 /work && chmod -R g=u /work
 
 USER 1001
 RUN ./gradlew build -Dquarkus.package.type=native -Dquarkus.profile=docker -x test --no-daemon
 
-USER root
-RUN upx --best --lzma /work/build/*-runner
-USER 1001
 
-
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5
 
 WORKDIR /work/
 
+RUN mkdir -p /work/logs
+
 COPY --from=build --chown=1001:root /work/build/*-runner /work/application
 
-RUN chmod 775 /work/application
+RUN chmod +x /work/application
 
 EXPOSE 8080
 USER 1001
 
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Xmx128m"]
+ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0"]
