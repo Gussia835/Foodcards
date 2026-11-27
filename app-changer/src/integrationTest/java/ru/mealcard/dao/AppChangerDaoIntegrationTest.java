@@ -1,4 +1,4 @@
-package ru.mealcard.dao;
+//package ru.mealcard.dao;
 
 //import io.quarkus.test.junit.QuarkusTest;
 //import jakarta.inject.Inject;

@@ -1,9 +1,8 @@
-package ru.mealcard.client.controller;
+package ru.mealcard.controller;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
-import ru.mealcard.dto.internal.RoutingInfo;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/api")

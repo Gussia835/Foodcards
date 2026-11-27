@@ -1,10 +1,9 @@
-package ru.mealcard.client.controller;
+package ru.mealcard.controller;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.annotation.Priority;
 import jakarta.interceptor.Interceptor;
-import ru.mealcard.dto.internal.RoutingInfo;
 
 @ApplicationScoped
 @Alternative

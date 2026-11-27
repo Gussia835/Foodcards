@@ -1,4 +1,4 @@
-package ru.mealcard.dto.internal;
+package ru.mealcard.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

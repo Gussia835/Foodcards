@@ -43,6 +43,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-scheduler'
     implementation 'io.quarkus:quarkus-arc'
 
+    implementation 'io.quarkiverse.config:quarkus-config-jasypt:2.6.0'
     implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
 
     compileOnly 'org.projectlombok:lombok:1.18.30'

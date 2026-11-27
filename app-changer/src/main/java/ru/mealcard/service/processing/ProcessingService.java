@@ -8,8 +8,8 @@ import jakarta.transaction.Transactional;
 import ru.mealcard.dao.AppChangerDao;
 import ru.mealcard.dto.entity.TransactionUpdateDTO;
 import ru.mealcard.models.AppChangerTransEntity;
-import ru.mealcard.processor.MessageProcessor;
-import ru.mealcard.processor.ProcessorRegister;
+import ru.mealcard.service.processor.MessageProcessor;
+import ru.mealcard.service.processor.ProcessorRegister;
 import ru.mealcard.repository.TransRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

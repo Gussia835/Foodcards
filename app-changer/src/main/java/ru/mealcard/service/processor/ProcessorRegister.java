@@ -1,4 +1,4 @@
-package ru.mealcard.processor;
+package ru.mealcard.service.processor;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.annotation.PostConstruct;
